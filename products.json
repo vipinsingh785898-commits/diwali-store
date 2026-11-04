@@ -1,0 +1,10 @@
+[
+  { "id": "silk-saree-maroon", "name": "Banarasi Silk Saree", "category": "Sarees", "price": 4499, "mrp": 5999, "color": "Maroon & Gold", "desc": "Rich zari border with a soft silk drape, ideal for Lakshmi Puja.", "badge": "Bestseller", "image": "" },
+  { "id": "kurta-set-mustard", "name": "Festive Kurta Set (Men)", "category": "Men", "price": 1799, "mrp": 2499, "color": "Mustard", "desc": "Cotton-silk kurta with churidar and embroidered neckline.", "badge": "", "image": "" },
+  { "id": "lehenga-emerald", "name": "Embroidered Lehenga Set", "category": "Women", "price": 6999, "mrp": 9499, "color": "Emerald Green", "desc": "Three-piece lehenga with dupatta and sequin work.", "badge": "New", "image": "" },
+  { "id": "anarkali-rose", "name": "Anarkali Suit", "category": "Women", "price": 2599, "mrp": 3499, "color": "Rose Pink", "desc": "Flowy georgette Anarkali with printed dupatta.", "badge": "", "image": "" },
+  { "id": "sherwani-ivory", "name": "Jacquard Nehru Jacket Set", "category": "Men", "price": 3299, "mrp": 4299, "color": "Ivory", "desc": "Jacquard Nehru jacket with matching kurta and pyjama.", "badge": "", "image": "" },
+  { "id": "kids-ethnic-orange", "name": "Kids Ethnic Set", "category": "Kids", "price": 999, "mrp": 1499, "color": "Orange", "desc": "Soft cotton kurta set for boys, comfortable all day.", "badge": "Gift pick", "image": "" },
+  { "id": "dupatta-bandhani", "name": "Bandhani Dupatta", "category": "Accessories", "price": 699, "mrp": 999, "color": "Multicolour", "desc": "Hand-tied bandhani dupatta that lifts any festive outfit.", "badge": "", "image": "" },
+  { "id": "kurti-chikankari", "name": "Chikankari Kurti", "category": "Women", "price": 1299, "mrp": 1799, "color": "White", "desc": "Lucknowi chikankari hand embroidery on breathable cotton.", "badge": "", "image": "" }
+]

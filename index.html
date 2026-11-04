@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diya &amp; Dhaga | Diwali Collection</title>
+<meta name="description" content="Festive Diwali clothing for the whole family. Sarees, kurta sets, lehengas and more. Secure online payment via UPI, cards and net banking.">
+<style>
+  :root { --maroon:#5a0f1f; --maroon-d:#3d0914; --gold:#c8962e; --gold-l:#f3d98b; --saffron:#e8741a; --cream:#fff9ee; --text:#2a1a1a; --muted:#7a6a62; --border:#eadfca; --ok:#1f7a4d; --err:#b3261e; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html { scroll-behavior:smooth; }
+  body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--cream); color:var(--text); line-height:1.55; }
+  a { color:inherit; text-decoration:none; }
+  button { font:inherit; cursor:pointer; }
+  .wrap { max-width:1120px; margin:0 auto; padding:0 20px; }
+
+  .topbar { background:var(--maroon-d); color:var(--gold-l); font-size:.82rem; text-align:center; padding:8px 12px; }
+  header { position:sticky; top:0; z-index:20; background:rgba(255,249,238,.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); }
+  .head { display:flex; align-items:center; justify-content:space-between; height:66px; }
+  .brand { font-family: Georgia, "Times New Roman", serif; font-size:1.45rem; color:var(--maroon); font-weight:700; }
+  .brand span { color:var(--saffron); }
+  .nav a { margin-left:22px; font-size:.92rem; color:var(--muted); }
+  .nav a:hover { color:var(--maroon); }
+  .cart-btn { position:relative; background:var(--maroon); color:#fff; border:0; border-radius:10px; padding:10px 16px; font-weight:600; font-size:.9rem; }
+  .cart-btn .count { background:var(--gold); color:var(--maroon-d); border-radius:999px; padding:1px 8px; margin-left:8px; font-size:.8rem; }
+  @media (max-width:640px){ .nav { display:none; } }
+
+  .hero { background: radial-gradient(circle at 80% 20%, #8a1d33 0%, transparent 55%), linear-gradient(135deg, var(--maroon-d), var(--maroon)); color:#fff; padding:76px 0 84px; position:relative; overflow:hidden; }
+  .hero::after { content:"✦  ✦  ✦"; position:absolute; right:6%; top:18%; font-size:3.2rem; letter-spacing:18px; color:rgba(243,217,139,.18); }
+  .hero .tag { display:inline-block; border:1px solid var(--gold); color:var(--gold-l); border-radius:999px; padding:5px 14px; font-size:.8rem; margin-bottom:18px; }
+  .hero h1 { font-family:Georgia,serif; font-size:clamp(2.1rem,5.5vw,3.6rem); line-height:1.12; max-width:680px; margin-bottom:16px; }
+  .hero h1 em { color:var(--gold-l); font-style:normal; }
+  .hero p { max-width:520px; color:#f1dfe2; margin-bottom:26px; }
+  .cta { display:inline-block; background:var(--gold); color:var(--maroon-d); font-weight:700; padding:13px 26px; border-radius:10px; }
+  .trust { background:#fff; border-bottom:1px solid var(--border); }
+  .trust .wrap { display:flex; flex-wrap:wrap; gap:10px 34px; justify-content:center; padding:16px 20px; font-size:.86rem; color:var(--muted); }
+  .trust b { color:var(--maroon); }
+
+  section { padding:56px 0 20px; }
+  h2 { font-family:Georgia,serif; color:var(--maroon); font-size:1.8rem; margin-bottom:6px; }
+  .sub { color:var(--muted); margin-bottom:22px; }
+  .filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px; }
+  .chip { border:1px solid var(--border); background:#fff; border-radius:999px; padding:7px 16px; font-size:.85rem; color:var(--muted); }
+  .chip.on { background:var(--maroon); color:#fff; border-color:var(--maroon); }
+
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:20px; }
+  .card { background:#fff; border:1px solid var(--border); border-radius:16px; overflow:hidden; display:flex; flex-direction:column; transition:transform .2s, box-shadow .2s; }
+  .card:hover { transform:translateY(-4px); box-shadow:0 14px 30px rgba(90,15,31,.12); }
+  .img { height:210px; display:flex; align-items:center; justify-content:center; font-family:Georgia,serif; font-size:3.4rem; color:rgba(255,255,255,.85); position:relative; background-size:cover; background-position:center; }
+  .badge { position:absolute; top:12px; left:12px; background:var(--gold); color:var(--maroon-d); font-size:.72rem; font-weight:700; padding:4px 10px; border-radius:999px; font-family:Inter,system-ui,sans-serif; }
+  .body { padding:16px; display:flex; flex-direction:column; gap:6px; flex:1; }
+  .body h3 { font-size:1.02rem; }
+  .meta { color:var(--muted); font-size:.82rem; }
+  .desc { color:var(--muted); font-size:.88rem; flex:1; }
+  .price { font-weight:700; font-size:1.1rem; color:var(--maroon); }
+  .price s { color:var(--muted); font-weight:400; font-size:.88rem; margin-left:6px; }
+  .price .off { color:var(--ok); font-size:.8rem; margin-left:6px; font-weight:600; }
+  .row { display:flex; gap:8px; margin-top:6px; }
+  select { border:1px solid var(--border); border-radius:8px; padding:8px; background:#fff; font:inherit; font-size:.85rem; }
+  .add { flex:1; background:var(--maroon); color:#fff; border:0; border-radius:8px; padding:9px 12px; font-weight:600; font-size:.88rem; }
+  .add:hover { background:var(--maroon-d); }
+
+  .overlay { position:fixed; inset:0; background:rgba(30,10,14,.5); opacity:0; pointer-events:none; transition:opacity .25s; z-index:40; }
+  .overlay.open { opacity:1; pointer-events:auto; }
+  .drawer { position:fixed; top:0; right:0; height:100%; width:min(420px,100%); background:#fff; z-index:50; transform:translateX(100%); transition:transform .3s; display:flex; flex-direction:column; }
+  .drawer.open { transform:none; }
+  .drawer header { position:static; padding:18px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); background:#fff; }
+  .x { background:none; border:0; font-size:1.5rem; color:var(--muted); }
+  .items { flex:1; overflow:auto; padding:8px 20px; }
+  .line { display:flex; gap:12px; padding:14px 0; border-bottom:1px solid var(--border); }
+  .thumb { width:56px; height:56px; border-radius:10px; flex-shrink:0; }
+  .line .info { flex:1; font-size:.9rem; }
+  .line .info small { color:var(--muted); display:block; }
+  .qty { display:inline-flex; align-items:center; border:1px solid var(--border); border-radius:8px; margin-top:6px; }
+  .qty button { background:none; border:0; width:28px; height:28px; font-size:1rem; }
+  .qty span { min-width:24px; text-align:center; font-size:.88rem; }
+  .rm { background:none; border:0; color:var(--err); font-size:.78rem; margin-left:12px; }
+  .empty { text-align:center; color:var(--muted); padding:60px 0; }
+  .sum { border-top:1px solid var(--border); padding:16px 20px; font-size:.92rem; }
+  .sum div { display:flex; justify-content:space-between; margin-bottom:6px; color:var(--muted); }
+  .sum .total { color:var(--text); font-weight:700; font-size:1.05rem; }
+  .note { font-size:.78rem; color:var(--ok); margin-bottom:8px; }
+  .pay { width:100%; background:var(--saffron); color:#fff; border:0; border-radius:10px; padding:14px; font-weight:700; font-size:1rem; margin-top:8px; }
+  .pay:disabled { opacity:.5; cursor:not-allowed; }
+
+  .modal { position:fixed; inset:0; z-index:60; display:none; align-items:center; justify-content:center; padding:16px; }
+  .modal.open { display:flex; }
+  .sheet { background:#fff; border-radius:18px; width:min(520px,100%); max-height:94vh; overflow:auto; padding:26px; }
+  .sheet h3 { font-family:Georgia,serif; color:var(--maroon); font-size:1.4rem; margin-bottom:4px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  label { display:block; font-size:.8rem; color:var(--muted); margin:12px 0 4px; }
+  input, textarea { width:100%; border:1px solid var(--border); border-radius:10px; padding:11px 12px; font:inherit; font-size:.92rem; }
+  input:focus, textarea:focus, select:focus { outline:2px solid var(--gold); outline-offset:0; }
+  .err { color:var(--err); font-size:.85rem; margin-top:12px; min-height:1.2em; }
+  .secure { font-size:.78rem; color:var(--muted); text-align:center; margin-top:12px; }
+  .done { text-align:center; padding:20px 4px; }
+  .done .tick { width:64px; height:64px; border-radius:50%; background:var(--ok); color:#fff; font-size:2rem; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; }
+  .toast { position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(30px); background:var(--maroon-d); color:#fff; padding:11px 20px; border-radius:10px; opacity:0; transition:.3s; z-index:80; font-size:.9rem; }
+  .toast.show { opacity:1; transform:translateX(-50%); }
+
+  footer { background:var(--maroon-d); color:#d9c6c9; margin-top:64px; padding:36px 0; font-size:.86rem; }
+  footer .wrap { display:flex; flex-wrap:wrap; gap:16px 40px; justify-content:space-between; }
+  footer a { color:var(--gold-l); margin-right:16px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">Diwali Sale: free shipping on orders above ₹<span id="fs">2,999</span> · Pay securely with UPI, cards or net banking</div>
+
+<header>
+  <div class="wrap head">
+    <a class="brand" href="#top">Diya <span>&amp;</span> Dhaga</a>
+    <nav class="nav"><a href="#shop">Shop</a><a href="#why">Why us</a><a href="/policies.html#contact">Contact</a></nav>
+    <button class="cart-btn" id="open-cart">Cart<span class="count" id="count">0</span></button>
+  </div>
+</header>
+
+<div class="hero" id="top">
+  <div class="wrap">
+    <span class="tag">Diwali Collection 2026</span>
+    <h1>Dress the festival of lights in <em>timeless ethnic wear</em></h1>
+    <p>Sarees, kurta sets, lehengas and kidswear for the whole family. Delivered across India.</p>
+    <a class="cta" href="#shop">Shop the collection</a>
+  </div>
+</div>
+
+<div class="trust"><div class="wrap">
+  <span><b>Secure payments</b> by Razorpay</span><span><b>Easy 7-day</b> exchange</span><span><b>Pan-India</b> shipping</span><span><b>Quality</b> checked fabrics</span>
+</div></div>
+
+<section id="shop"><div class="wrap">
+  <h2>Festive Collection</h2>
+  <p class="sub">Handpicked outfits for pooja, family gatherings and gifting.</p>
+  <div class="filters" id="filters"></div>
+  <div class="grid" id="grid"></div>
+</div></section>
+
+<section id="why"><div class="wrap">
+  <h2>Why shop with us</h2>
+  <p class="sub">Simple, safe and festival-ready.</p>
+  <div class="grid">
+    <div class="card"><div class="body"><h3>Secure checkout</h3><p class="desc">Payments are processed by Razorpay. We never see or store your card or UPI details.</p></div></div>
+    <div class="card"><div class="body"><h3>Fast dispatch</h3><p class="desc">Orders are packed within 1-2 working days so your outfit arrives before the festival.</p></div></div>
+    <div class="card"><div class="body"><h3>Easy exchange</h3><p class="desc">Wrong size? Exchange within 7 days of delivery. See our policy for details.</p></div></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div><b style="color:#fff">Diya &amp; Dhaga</b><br>Festive ethnic wear, delivered across India.</div>
+  <div><a href="/policies.html#privacy">Privacy</a><a href="/policies.html#terms">Terms</a><a href="/policies.html#refund">Refunds &amp; Exchange</a><a href="/policies.html#shipping">Shipping</a><a href="/policies.html#contact">Contact</a></div>
+</div></footer>
+
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-label="Shopping cart">
+  <header><h3 style="font-family:Georgia,serif;color:var(--maroon)">Your Cart</h3><button class="x" id="close-cart" aria-label="Close cart">×</button></header>
+  <div class="items" id="items"></div>
+  <div class="sum" id="sum"></div>
+</aside>
+
+<div class="modal" id="modal"><div class="overlay open" id="modal-bg" style="z-index:0"></div>
+  <div class="sheet" style="position:relative;z-index:1" id="sheet"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const inr = n => "₹" + Number(n).toLocaleString("en-IN");
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const PALETTE = [["#7b1230","#c8962e"],["#a4571b","#e8b04a"],["#1d5c4a","#7fb99c"],["#5b2a7a","#c79bd6"],["#8a2b2b","#e8956a"],["#25476b","#8fb3d9"]];
+const hue = id => PALETTE[[...id].reduce((a,c)=>a+c.charCodeAt(0),0) % PALETTE.length];
+
+let products = [], cart = [], config = { shippingFlat:80, freeShippingAbove:2999, paymentsEnabled:true }, filter = "All";
+try { cart = JSON.parse(localStorage.getItem("cart") || "[]"); } catch(e) { cart = []; }
+const save = () => { try { localStorage.setItem("cart", JSON.stringify(cart)); } catch(e) {} };
+
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 1800); }
+function visual(p) {
+  if (p.image) return `background-image:url('${esc(p.image)}')`;
+  const [a,b] = hue(p.id); return `background:linear-gradient(135deg,${a},${b})`;
+}
+
+/* ---------- Catalogue ---------- */
+function renderFilters() {
+  const cats = ["All", ...new Set(products.map(p => p.category))];
+  $("filters").innerHTML = cats.map(c => `<button class="chip ${c===filter?"on":""}" data-c="${esc(c)}">${esc(c)}</button>`).join("");
+  $("filters").querySelectorAll(".chip").forEach(b => b.onclick = () => { filter = b.dataset.c; renderFilters(); renderGrid(); });
+}
+function sizesFor(p) { return p.category === "Kids" ? ["2-4Y","4-6Y","6-8Y","8-10Y"] : p.category === "Accessories" ? ["Free"] : ["S","M","L","XL","XXL"]; }
+function renderGrid() {
+  const list = products.filter(p => filter === "All" || p.category === filter);
+  $("grid").innerHTML = list.map(p => {
+    const off = p.mrp > p.price ? Math.round((1 - p.price / p.mrp) * 100) : 0;
+    return `<article class="card">
+      <div class="img" style="${visual(p)}">${p.image ? "" : esc(p.name[0])}${p.badge ? `<span class="badge">${esc(p.badge)}</span>` : ""}</div>
+      <div class="body">
+        <div class="meta">${esc(p.category)} · ${esc(p.color)}</div>
+        <h3>${esc(p.name)}</h3><p class="desc">${esc(p.desc)}</p>
+        <div class="price">${inr(p.price)}${off ? `<s>${inr(p.mrp)}</s><span class="off">${off}% off</span>` : ""}</div>
+        <div class="row"><select id="size-${esc(p.id)}" aria-label="Size">${sizesFor(p).map(s => `<option>${s}</option>`).join("")}</select>
+        <button class="add" data-id="${esc(p.id)}">Add to cart</button></div>
+      </div></article>`;
+  }).join("");
+  $("grid").querySelectorAll(".add").forEach(b => b.onclick = () => addToCart(b.dataset.id, $("size-" + b.dataset.id).value));
+}
+
+/* ---------- Cart ---------- */
+function addToCart(id, size) {
+  const ex = cart.find(c => c.id === id && c.size === size);
+  if (ex) ex.qty = Math.min(10, ex.qty + 1); else cart.push({ id, size, qty: 1 });
+  save(); renderCart(); toast("Added to cart");
+}
+function totals() {
+  const subtotal = cart.reduce((s, c) => s + (products.find(p => p.id === c.id)?.price || 0) * c.qty, 0);
+  const shipping = subtotal === 0 ? 0 : subtotal >= config.freeShippingAbove ? 0 : config.shippingFlat;
+  return { subtotal, shipping, total: subtotal + shipping };
+}
+function renderCart() {
+  cart = cart.filter(c => products.some(p => p.id === c.id));
+  $("count").textContent = cart.reduce((s, c) => s + c.qty, 0);
+  if (!cart.length) { $("items").innerHTML = `<div class="empty">Your cart is empty.<br>Explore the festive collection.</div>`; $("sum").innerHTML = ""; return; }
+  $("items").innerHTML = cart.map((c, i) => {
+    const p = products.find(x => x.id === c.id);
+    return `<div class="line"><div class="thumb" style="${visual(p)}"></div>
+      <div class="info"><b>${esc(p.name)}</b><small>Size ${esc(c.size)} · ${inr(p.price)}</small>
+      <div><span class="qty"><button data-a="dec" data-i="${i}" aria-label="Decrease">−</button><span>${c.qty}</span><button data-a="inc" data-i="${i}" aria-label="Increase">+</button></span>
+      <button class="rm" data-a="rm" data-i="${i}">Remove</button></div></div>
+      <b>${inr(p.price * c.qty)}</b></div>`;
+  }).join("");
+  const t = totals(), left = config.freeShippingAbove - t.subtotal;
+  $("sum").innerHTML = `${left > 0 ? `<div class="note">Add ${inr(left)} more for free shipping</div>` : `<div class="note">You have free shipping</div>`}
+    <div><span>Subtotal</span><span>${inr(t.subtotal)}</span></div>
+    <div><span>Shipping</span><span>${t.shipping ? inr(t.shipping) : "Free"}</span></div>
+    <div class="total"><span>Total</span><span>${inr(t.total)}</span></div>
+    <button class="pay" id="checkout">Proceed to pay ${inr(t.total)}</button>`;
+  $("checkout").onclick = openCheckout;
+  $("items").querySelectorAll("[data-a]").forEach(b => b.onclick = () => {
+    const i = +b.dataset.i, a = b.dataset.a;
+    if (a === "inc") cart[i].qty = Math.min(10, cart[i].qty + 1);
+    if (a === "dec") cart[i].qty = Math.max(1, cart[i].qty - 1);
+    if (a === "rm") cart.splice(i, 1);
+    save(); renderCart();
+  });
+}
+const toggleCart = open => { $("drawer").classList.toggle("open", open); $("overlay").classList.toggle("open", open); };
+$("open-cart").onclick = () => toggleCart(true);
+$("close-cart").onclick = $("overlay").onclick = () => toggleCart(false);
+
+/* ---------- Checkout ---------- */
+function openCheckout() {
+  const t = totals();
+  $("sheet").innerHTML = `<h3>Delivery details</h3><p class="meta">Order total ${inr(t.total)}</p>
+    <form id="form" novalidate>
+      <label for="f-name">Full name</label><input id="f-name" autocomplete="name" required>
+      <div class="grid2"><div><label for="f-phone">Mobile number</label><input id="f-phone" inputmode="numeric" maxlength="10" autocomplete="tel-national" required></div>
+      <div><label for="f-email">Email</label><input id="f-email" type="email" autocomplete="email" required></div></div>
+      <label for="f-address">Full address</label><textarea id="f-address" rows="2" autocomplete="street-address" required></textarea>
+      <div class="grid2"><div><label for="f-city">City</label><input id="f-city" autocomplete="address-level2" required></div>
+      <div><label for="f-pin">Pincode</label><input id="f-pin" inputmode="numeric" maxlength="6" autocomplete="postal-code" required></div></div>
+      <div class="err" id="err" role="alert"></div>
+      <button class="pay" id="paybtn" type="submit">Pay ${inr(t.total)} securely</button>
+      <button type="button" class="x" id="cancel" style="width:100%;font-size:.9rem;margin-top:8px">Cancel</button>
+      <p class="secure">Secured by Razorpay · UPI, cards, net banking and wallets accepted</p>
+    </form>`;
+  $("modal").classList.add("open");
+  $("cancel").onclick = closeModal;
+  $("form").onsubmit = submitOrder;
+}
+const closeModal = () => $("modal").classList.remove("open");
+$("modal-bg").onclick = closeModal;
+
+async function submitOrder(e) {
+  e.preventDefault();
+  const btn = $("paybtn"), err = $("err"); err.textContent = ""; btn.disabled = true; btn.textContent = "Starting payment...";
+  const customer = { name:$("f-name").value, phone:$("f-phone").value, email:$("f-email").value, address:$("f-address").value, city:$("f-city").value, pincode:$("f-pin").value };
+  try {
+    const r = await fetch("/api/create-order", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ items: cart, customer }) });
+    const o = await r.json();
+    if (!r.ok) throw new Error(o.error || "Could not start payment");
+    if (typeof Razorpay === "undefined") throw new Error("Payment window could not load. Check your connection and retry.");
+
+    const rzp = new Razorpay({
+      key: o.keyId, amount: o.amount, currency: o.currency, order_id: o.orderId,
+      name: "Diya & Dhaga", description: "Diwali Collection order", prefill: o.prefill,
+      theme: { color: "#5a0f1f" },
+      modal: { ondismiss: () => { btn.disabled = false; btn.textContent = "Pay securely"; } },
+      handler: async resp => {
+        try {
+          const v = await fetch("/api/verify-payment", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(resp) });
+          const vr = await v.json();
+          if (!v.ok) throw new Error(vr.error);
+          cart = []; save(); renderCart(); toggleCart(false);
+          $("sheet").innerHTML = `<div class="done"><div class="tick">✓</div><h3>Payment successful</h3>
+            <p class="meta" style="margin:8px 0">Thank you! Your order <b>${esc(vr.receipt)}</b> is confirmed.<br>Please save your Payment ID below. We will contact you on your mobile number for dispatch details.</p>
+            <p class="meta">Payment ID: ${esc(resp.razorpay_payment_id)}</p>
+            <button class="pay" id="ok" style="margin-top:18px">Continue shopping</button></div>`;
+          $("ok").onclick = closeModal;
+        } catch (ex) {
+          $("sheet").innerHTML = `<div class="done"><h3>We could not confirm your payment</h3><p class="meta" style="margin:10px 0">If money was deducted, it will be matched automatically. Please contact us with Payment ID <b>${esc(resp.razorpay_payment_id)}</b>.</p><button class="pay" id="ok">Close</button></div>`;
+          $("ok").onclick = closeModal;
+        }
+      }
+    });
+    rzp.on("payment.failed", r => { err.textContent = (r.error && r.error.description) || "Payment failed. Please try again."; btn.disabled = false; btn.textContent = "Retry payment"; });
+    rzp.open();
+  } catch (ex) { err.textContent = ex.message; btn.disabled = false; btn.textContent = "Pay securely"; }
+}
+
+/* ---------- Init ---------- */
+(async function init() {
+  try {
+    [products, config] = await Promise.all([fetch("/api/products").then(r => r.json()), fetch("/api/config").then(r => r.json())]);
+    $("fs").textContent = Number(config.freeShippingAbove).toLocaleString("en-IN");
+    renderFilters(); renderGrid(); renderCart();
+  } catch (e) { $("grid").innerHTML = `<p class="sub">Could not load products. Please refresh.</p>`; }
+})();
+</script>
+</body>
+</html>
