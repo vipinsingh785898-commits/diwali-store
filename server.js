@@ -110,7 +110,11 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (req, 
 });
 
 app.use(express.json({ limit: "20kb" }));
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(__dirname));
+
+app.get("/", (req, res) => {
+ res.sendFile(path.join(__dirname, "index.html"));
+});
 
 /* ---------- API ---------- */
 app.get("/api/products", (_req, res) => res.json(PRODUCTS));
