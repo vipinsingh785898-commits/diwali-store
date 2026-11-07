@@ -82,6 +82,12 @@
   .note { font-size:.78rem; color:var(--ok); margin-bottom:8px; }
   .pay { width:100%; background:var(--saffron); color:#fff; border:0; border-radius:10px; padding:14px; font-weight:700; font-size:1rem; margin-top:8px; }
   .pay:disabled { opacity:.5; cursor:not-allowed; }
+  .alt { width:100%; background:#fff; color:var(--maroon); border:1.5px solid var(--maroon); border-radius:10px; padding:13px; font-weight:700; font-size:.95rem; margin-top:8px; }
+  .alt:disabled { opacity:.5; cursor:not-allowed; }
+  .step { text-align:left; border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:12px; }
+  .step .pay { display:block; text-align:center; text-decoration:none; margin:10px 0; }
+  .qr { display:flex; justify-content:center; margin:10px 0; }
+  .qr svg { width:180px; height:180px; }
 
   .modal { position:fixed; inset:0; z-index:60; display:none; align-items:center; justify-content:center; padding:16px; }
   .modal.open { display:flex; }
@@ -105,7 +111,7 @@
 </head>
 <body>
 
-<div class="topbar">Diwali Sale: free shipping on orders above ₹<span id="fs">2,999</span> · Pay securely with UPI, cards or net banking</div>
+<div class="topbar">Diwali Sale: free shipping on orders above ₹<span id="fs">2,999</span> · <span id="topbar-pay">Pay securely with UPI, cards or net banking</span></div>
 
 <header>
   <div class="wrap head">
@@ -125,7 +131,7 @@
 </div>
 
 <div class="trust"><div class="wrap">
-  <span><b>Secure payments</b> by Razorpay</span><span><b>Easy 7-day</b> exchange</span><span><b>Pan-India</b> shipping</span><span><b>Quality</b> checked fabrics</span>
+  <span id="trust-pay"><b>Secure payments</b> by Razorpay</span><span><b>Easy 7-day</b> exchange</span><span><b>Pan-India</b> shipping</span><span><b>Quality</b> checked fabrics</span>
 </div></div>
 
 <section id="shop"><div class="wrap">
@@ -139,7 +145,7 @@
   <h2>Why shop with us</h2>
   <p class="sub">Simple, safe and festival-ready.</p>
   <div class="grid">
-    <div class="card"><div class="body"><h3>Secure checkout</h3><p class="desc">Payments are processed by Razorpay. We never see or store your card or UPI details.</p></div></div>
+    <div class="card"><div class="body"><h3>Secure checkout</h3><p class="desc" id="why-secure">Payments are processed by Razorpay. We never see or store your card or UPI details.</p></div></div>
     <div class="card"><div class="body"><h3>Fast dispatch</h3><p class="desc">Orders are packed within 1-2 working days so your outfit arrives before the festival.</p></div></div>
     <div class="card"><div class="body"><h3>Easy exchange</h3><p class="desc">Wrong size? Exchange within 7 days of delivery. See our policy for details.</p></div></div>
   </div>
@@ -163,6 +169,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const inr = n => "₹" + Number(n).toLocaleString("en-IN");
@@ -170,7 +177,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">
 const PALETTE = [["#7b1230","#c8962e"],["#a4571b","#e8b04a"],["#1d5c4a","#7fb99c"],["#5b2a7a","#c79bd6"],["#8a2b2b","#e8956a"],["#25476b","#8fb3d9"]];
 const hue = id => PALETTE[[...id].reduce((a,c)=>a+c.charCodeAt(0),0) % PALETTE.length];
 
-let products = [], cart = [], config = { shippingFlat:80, freeShippingAbove:2999, paymentsEnabled:true }, filter = "All";
+let products = [], cart = [], config = { shippingFlat:80, freeShippingAbove:2999, paymentsEnabled:true, manualEnabled:false }, filter = "All";
 try { cart = JSON.parse(localStorage.getItem("cart") || "[]"); } catch(e) { cart = []; }
 const save = () => { try { localStorage.setItem("cart", JSON.stringify(cart)); } catch(e) {} };
 
@@ -249,6 +256,7 @@ $("close-cart").onclick = $("overlay").onclick = () => toggleCart(false);
 /* ---------- Checkout ---------- */
 function openCheckout() {
   const t = totals();
+  const online = config.paymentsEnabled, manual = config.manualEnabled;
   $("sheet").innerHTML = `<h3>Delivery details</h3><p class="meta">Order total ${inr(t.total)}</p>
     <form id="form" novalidate>
       <label for="f-name">Full name</label><input id="f-name" autocomplete="name" required>
@@ -258,13 +266,16 @@ function openCheckout() {
       <div class="grid2"><div><label for="f-city">City</label><input id="f-city" autocomplete="address-level2" required></div>
       <div><label for="f-pin">Pincode</label><input id="f-pin" inputmode="numeric" maxlength="6" autocomplete="postal-code" required></div></div>
       <div class="err" id="err" role="alert"></div>
-      <button class="pay" id="paybtn" type="submit">Pay ${inr(t.total)} securely</button>
+      ${online ? `<button class="pay" id="paybtn" type="submit">Pay ${inr(t.total)} securely</button>` : ""}
+      ${manual ? `<button class="${online ? "alt" : "pay"}" id="manualbtn" type="${online ? "button" : "submit"}">${online ? "Or pay by UPI and confirm on WhatsApp" : "Place order and pay by UPI"}</button>` : ""}
+      ${!online && !manual ? `<p class="err">Checkout is not available right now. Please try again later.</p>` : ""}
       <button type="button" class="x" id="cancel" style="width:100%;font-size:.9rem;margin-top:8px">Cancel</button>
-      <p class="secure">Secured by Razorpay · UPI, cards, net banking and wallets accepted</p>
+      <p class="secure">${online ? "Secured by Razorpay · UPI, cards, net banking and wallets accepted" : "Pay with any UPI app (GPay, PhonePe, Paytm). Your order is confirmed after we verify your payment."}</p>
     </form>`;
   $("modal").classList.add("open");
   $("cancel").onclick = closeModal;
-  $("form").onsubmit = submitOrder;
+  $("form").onsubmit = online ? submitOrder : submitManual;
+  if (online && manual) $("manualbtn").onclick = submitManual;
 }
 const closeModal = () => $("modal").classList.remove("open");
 $("modal-bg").onclick = closeModal;
@@ -306,11 +317,51 @@ async function submitOrder(e) {
   } catch (ex) { err.textContent = ex.message; btn.disabled = false; btn.textContent = "Pay securely"; }
 }
 
+/* ---------- UPI + WhatsApp (manual payment) ---------- */
+async function submitManual(e) {
+  if (e) e.preventDefault();
+  const btn = $("manualbtn"), err = $("err"), label = btn.textContent;
+  err.textContent = ""; btn.disabled = true; btn.textContent = "Placing order...";
+  const customer = { name:$("f-name").value, phone:$("f-phone").value, email:$("f-email").value, address:$("f-address").value, city:$("f-city").value, pincode:$("f-pin").value };
+  try {
+    const r = await fetch("/api/manual-order", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ items: cart, customer }) });
+    const o = await r.json();
+    if (!r.ok) throw new Error(o.error || "Could not place the order");
+    cart = []; save(); renderCart(); toggleCart(false);
+    showManualDone(o);
+  } catch (ex) { err.textContent = ex.message; btn.disabled = false; btn.textContent = label; }
+}
+function showManualDone(o) {
+  $("sheet").innerHTML = `<div class="done"><h3>Order placed: ${esc(o.receipt)}</h3>
+    <p class="meta" style="margin:8px 0 14px">Amount to pay: <b>${inr(o.amount)}</b></p>
+    ${o.upiId ? `<div class="step"><b>Step 1: Pay by UPI</b>
+      <a class="pay" href="${esc(o.upiLink)}">Pay ${inr(o.amount)} in your UPI app</a>
+      <div class="qr" id="qr"></div>
+      <p class="meta">UPI ID: <b>${esc(o.upiId)}</b> <button type="button" class="rm" id="copy" style="color:var(--maroon)">Copy</button></p>
+      <p class="meta">Pay exactly ${inr(o.amount)} and keep the payment screenshot.</p></div>` : ""}
+    ${o.whatsappLink ? `<div class="step"><b>${o.upiId ? "Step 2: " : ""}Send your order on WhatsApp</b>
+      <a class="pay" style="background:#1f7a4d" target="_blank" rel="noopener" href="${esc(o.whatsappLink)}">Send order on WhatsApp</a>
+      <p class="meta">Attach your payment screenshot in the chat. We will confirm and dispatch your order.</p></div>` : ""}
+    <button class="x" id="ok" style="font-size:.9rem;margin-top:6px">Close</button></div>`;
+  $("ok").onclick = closeModal;
+  if (o.upiLink && typeof qrcode === "function") {
+    try { const q = qrcode(0, "M"); q.addData(o.upiLink); q.make(); $("qr").innerHTML = q.createSvgTag(4, 2); } catch (e) { $("qr").remove(); }
+  } else if ($("qr")) { $("qr").remove(); }
+  if ($("copy")) $("copy").onclick = () => {
+    try { navigator.clipboard.writeText(o.upiId); toast("UPI ID copied"); } catch (e) { toast("Copy not supported, please type it"); }
+  };
+}
+
 /* ---------- Init ---------- */
 (async function init() {
   try {
     [products, config] = await Promise.all([fetch("/api/products").then(r => r.json()), fetch("/api/config").then(r => r.json())]);
     $("fs").textContent = Number(config.freeShippingAbove).toLocaleString("en-IN");
+    if (!config.paymentsEnabled) {
+      $("topbar-pay").textContent = "Pay easily with any UPI app (GPay, PhonePe, Paytm)";
+      $("trust-pay").innerHTML = "<b>Easy payment</b> by UPI";
+      $("why-secure").textContent = "Pay with any UPI app and send us the screenshot on WhatsApp. We confirm every order personally.";
+    }
     renderFilters(); renderGrid(); renderCart();
   } catch (e) { $("grid").innerHTML = `<p class="sub">Could not load products. Please refresh.</p>`; }
 })();
