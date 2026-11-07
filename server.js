@@ -3,13 +3,9 @@ const express = require("express");
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
-const Razorpay = require("razorpay");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const KEY_ID = process.env.RAZORPAY_KEY_ID;
-const KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
-const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
 const SHIPPING_FLAT = Number(process.env.SHIPPING_FLAT ?? 80);
 const FREE_SHIPPING_ABOVE = Number(process.env.FREE_SHIPPING_ABOVE ?? 2999);
 
@@ -24,7 +20,6 @@ const WA_OK = /^\d{11,14}$/.test(WHATSAPP_NUMBER) && WHATSAPP_NUMBER !== "919876
 const PRODUCTS = JSON.parse(fs.readFileSync(path.join(__dirname, "products.json"), "utf8"));
 const PRODUCT_MAP = new Map(PRODUCTS.map(p => [p.id, p]));
 
-const razorpay = KEY_ID && KEY_SECRET ? new Razorpay({ key_id: KEY_ID, key_secret: KEY_SECRET }) : null;
 
 /* ---------- Tiny file-based order store (swap for MongoDB in production) ---------- */
 const DATA_DIR = path.join(__dirname, "data");
@@ -50,7 +45,6 @@ function safeEqual(a, b) {
   const y = Buffer.from(String(b || ""), "utf8");
   return x.length === y.length && crypto.timingSafeEqual(x, y);
 }
-const hmac = (secret, data) => crypto.createHmac("sha256", secret).update(data).digest("hex");
 
 function priceCart(rawItems) {
   if (!Array.isArray(rawItems) || rawItems.length === 0 || rawItems.length > 30) throw new Error("Cart is empty or invalid");
@@ -87,35 +81,7 @@ function validateCustomer(c) {
   return clean;
 }
 
-/* ---------- Webhook (needs the RAW body, so it is registered before express.json) ---------- */
-app.post("/api/webhook", express.raw({ type: "application/json" }), async (req, res) => {
-  if (!WEBHOOK_SECRET) return res.status(503).send("Webhook not configured");
-  const signature = req.get("X-Razorpay-Signature");
-  if (!safeEqual(signature, hmac(WEBHOOK_SECRET, req.body))) return res.status(400).send("Invalid signature");
 
-  try {
-    const event = JSON.parse(req.body.toString("utf8"));
-    if (event.event === "payment.captured" || event.event === "order.paid") {
-      const payment = event.payload && event.payload.payment && event.payload.payment.entity;
-      const orderId = payment && payment.order_id;
-      if (orderId) {
-        await updateOrders(orders => {
-          const o = orders[orderId];
-          if (o && o.status !== "paid") {
-            o.status = "paid";
-            o.paymentId = payment.id;
-            o.paidAt = new Date().toISOString();
-            o.paidVia = "webhook";
-          }
-        });
-      }
-    }
-    res.json({ ok: true });
-  } catch (err) {
-    console.error("Webhook error:", err.message);
-    res.status(500).send("Webhook failed");
-  }
-});
 
 app.use(express.json({ limit: "20kb" }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -131,13 +97,11 @@ for (const page of ["index.html", "policies.html"]) {
 }
 
 /* ---------- API ---------- */
-app.get("/api/products", (_req, res) => res.json(PRODUCTS));
-
 app.get("/api/config", (_req, res) =>
   res.json({
     shippingFlat: SHIPPING_FLAT,
     freeShippingAbove: FREE_SHIPPING_ABOVE,
-    paymentsEnabled: Boolean(razorpay),
+    paymentsEnabled: false,
     manualEnabled: UPI_OK || WA_OK
   })
 );
@@ -196,18 +160,6 @@ app.post("/api/manual-order", async (req, res) => {
   }
 });
 
-app.post("/api/create-order", async (req, res) => {
-  if (!razorpay) return res.status(503).json({ error: "Payments are not configured yet. Add Razorpay keys to .env." });
-  try {
-    const cart = priceCart(req.body.items);
-    const customer = validateCustomer(req.body.customer);
-
-    const order = await razorpay.orders.create({
-      amount: cart.total * 100, // paise; computed on the server, never trusted from the browser
-      currency: "INR",
-      receipt: "DW" + Date.now().toString(36).toUpperCase(),
-      notes: { customer: customer.name, phone: customer.phone }
-    });
 
     await updateOrders(orders => {
       orders[order.id] = {
@@ -238,27 +190,7 @@ app.post("/api/create-order", async (req, res) => {
 });
 
 app.post("/api/verify-payment", async (req, res) => {
-  if (!KEY_SECRET) return res.status(503).json({ error: "Payments are not configured" });
-  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body || {};
-  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature)
-    return res.status(400).json({ error: "Missing payment details" });
-
-  const expected = hmac(KEY_SECRET, `${razorpay_order_id}|${razorpay_payment_id}`);
-  if (!safeEqual(expected, razorpay_signature)) return res.status(400).json({ error: "Payment verification failed" });
-
-  const receipt = await updateOrders(orders => {
-    const o = orders[razorpay_order_id];
-    if (!o) return null;
-    if (o.status !== "paid") {
-      o.status = "paid";
-      o.paymentId = razorpay_payment_id;
-      o.paidAt = new Date().toISOString();
-      o.paidVia = "checkout";
-    }
-    return o.receipt;
-  });
-  if (!receipt) return res.status(404).json({ error: "Order not found" });
-  res.json({ ok: true, receipt });
+ 
 });
 
 /* Simple admin view. Protect with ADMIN_TOKEN before going live.
@@ -291,7 +223,6 @@ app.post("/api/admin/mark-paid", async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Diwali store running on http://localhost:${PORT}`);
-  if (!razorpay) console.warn("Razorpay keys missing: online payments are off (UPI/WhatsApp checkout still works if configured).");
   if (!UPI_OK) console.warn("UPI_ID missing or invalid: UPI payment details will not be shown.");
   if (!WA_OK) console.warn("WHATSAPP_NUMBER missing or invalid: WhatsApp order button will not be shown.");
 });
