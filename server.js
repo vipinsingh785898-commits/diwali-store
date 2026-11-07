@@ -13,6 +13,14 @@ const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
 const SHIPPING_FLAT = Number(process.env.SHIPPING_FLAT ?? 80);
 const FREE_SHIPPING_ABOVE = Number(process.env.FREE_SHIPPING_ABOVE ?? 2999);
 
+/* Temporary / backup payment method: customer pays to your UPI ID and sends the screenshot on WhatsApp */
+const STORE_NAME = process.env.STORE_NAME || "Diya & Dhaga";
+const UPI_ID = (process.env.UPI_ID || "").trim();
+const WHATSAPP_NUMBER = (process.env.WHATSAPP_NUMBER || "").replace(/\D/g, ""); // with country code, e.g. 919876543210
+// Placeholder values from .env.example are rejected so customers never pay a wrong ID by mistake
+const UPI_OK = /^[\w.\-]{2,}@[A-Za-z]{2,}$/.test(UPI_ID) && !/^yourname@/i.test(UPI_ID);
+const WA_OK = /^\d{11,14}$/.test(WHATSAPP_NUMBER) && WHATSAPP_NUMBER !== "919876543210";
+
 const PRODUCTS = JSON.parse(fs.readFileSync(path.join(__dirname, "products.json"), "utf8"));
 const PRODUCT_MAP = new Map(PRODUCTS.map(p => [p.id, p]));
 
@@ -110,18 +118,73 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (req, 
 });
 
 app.use(express.json({ limit: "20kb" }));
-app.use(express.static(__dirname));
-
-app.get("/", (req, res) => {
- res.sendFile(path.join(__dirname, "index.html"));
-});
+app.use(express.static(path.join(__dirname, "public")));
 
 /* ---------- API ---------- */
 app.get("/api/products", (_req, res) => res.json(PRODUCTS));
 
 app.get("/api/config", (_req, res) =>
-  res.json({ shippingFlat: SHIPPING_FLAT, freeShippingAbove: FREE_SHIPPING_ABOVE, paymentsEnabled: Boolean(razorpay) })
+  res.json({
+    shippingFlat: SHIPPING_FLAT,
+    freeShippingAbove: FREE_SHIPPING_ABOVE,
+    paymentsEnabled: Boolean(razorpay),
+    manualEnabled: UPI_OK || WA_OK
+  })
 );
+
+/* Manual order: server prices the cart, saves the order as "awaiting_payment", returns UPI + WhatsApp links */
+app.post("/api/manual-order", async (req, res) => {
+  if (!UPI_OK && !WA_OK) return res.status(503).json({ error: "This payment method is not available right now." });
+  try {
+    const cart = priceCart(req.body.items);
+    const customer = validateCustomer(req.body.customer);
+    const receipt = "DW" + Date.now().toString(36).toUpperCase();
+
+    await updateOrders(orders => {
+      orders[receipt] = {
+        orderId: receipt,
+        receipt,
+        method: "manual-upi",
+        status: "awaiting_payment",
+        createdAt: new Date().toISOString(),
+        amount: cart.total,
+        subtotal: cart.subtotal,
+        shipping: cart.shipping,
+        items: cart.lines,
+        customer
+      };
+    });
+
+    const lines = cart.lines.map(l => `- ${l.name} (Size ${l.size}) x${l.qty} = Rs ${l.price * l.qty}`);
+    const text = [
+      `New order ${receipt}`,
+      ...lines,
+      cart.shipping ? `Shipping: Rs ${cart.shipping}` : "Shipping: Free",
+      `Total: Rs ${cart.total}`,
+      "",
+      `Name: ${customer.name}`,
+      `Mobile: ${customer.phone}`,
+      `Address: ${customer.address}, ${customer.city} - ${customer.pincode}`,
+      "",
+      "I have paid by UPI. Payment screenshot attached."
+    ].join("\n");
+
+    res.json({
+      receipt,
+      amount: cart.total,
+      storeName: STORE_NAME,
+      upiId: UPI_OK ? UPI_ID : null,
+      upiLink: UPI_OK
+        ? `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(STORE_NAME)}&am=${cart.total}.00&cu=INR&tn=${encodeURIComponent(receipt)}`
+        : null,
+      whatsappLink: WA_OK ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}` : null
+    });
+  } catch (err) {
+    const known = /Cart|quantity|product|name|mobile|email|address|city|pincode/i.test(err.message);
+    if (!known) console.error("manual-order error:", err);
+    res.status(known ? 400 : 500).json({ error: known ? err.message : "Could not place the order. Please try again." });
+  }
+});
 
 app.post("/api/create-order", async (req, res) => {
   if (!razorpay) return res.status(503).json({ error: "Payments are not configured yet. Add Razorpay keys to .env." });
@@ -188,17 +251,39 @@ app.post("/api/verify-payment", async (req, res) => {
   res.json({ ok: true, receipt });
 });
 
-/* Simple admin view of paid orders. Protect with ADMIN_TOKEN before going live. */
-app.get("/api/admin/orders", (req, res) => {
+/* Simple admin view. Protect with ADMIN_TOKEN before going live.
+   GET  /api/admin/orders            -> paid orders
+   GET  /api/admin/orders?status=all -> every order (includes UPI orders awaiting your confirmation)
+   POST /api/admin/mark-paid {orderId} -> after you check the UPI screenshot in your bank/UPI app */
+const isAdmin = req => {
   const token = process.env.ADMIN_TOKEN;
-  if (!token || !safeEqual(req.get("x-admin-token"), token)) return res.status(401).json({ error: "Unauthorized" });
-  const paid = Object.values(readOrders()).filter(o => o.status === "paid");
-  res.json(paid);
+  return Boolean(token) && safeEqual(req.get("x-admin-token"), token);
+};
+app.get("/api/admin/orders", (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: "Unauthorized" });
+  const all = Object.values(readOrders());
+  res.json(req.query.status === "all" ? all : all.filter(o => o.status === "paid"));
+});
+app.post("/api/admin/mark-paid", async (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: "Unauthorized" });
+  const id = String((req.body && req.body.orderId) || "");
+  const found = await updateOrders(orders => {
+    const o = orders[id];
+    if (!o) return false;
+    o.status = "paid";
+    o.paidAt = new Date().toISOString();
+    o.paidVia = "manual-confirmed";
+    return true;
+  });
+  if (!found) return res.status(404).json({ error: "Order not found" });
+  res.json({ ok: true });
 });
 
 app.listen(PORT, () => {
   console.log(`Diwali store running on http://localhost:${PORT}`);
-  if (!razorpay) console.warn("Razorpay keys missing: storefront works, payments are disabled until .env is set.");
+  if (!razorpay) console.warn("Razorpay keys missing: online payments are off (UPI/WhatsApp checkout still works if configured).");
+  if (!UPI_OK) console.warn("UPI_ID missing or invalid: UPI payment details will not be shown.");
+  if (!WA_OK) console.warn("WHATSAPP_NUMBER missing or invalid: WhatsApp order button will not be shown.");
 });
 
 module.exports = app;
