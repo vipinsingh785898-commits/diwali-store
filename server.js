@@ -120,6 +120,16 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (req, 
 app.use(express.json({ limit: "20kb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
+/* Safety net: if the HTML pages were uploaded to the repo root instead of /public,
+   still serve them. Only these two files are exposed, never the whole folder. */
+for (const page of ["index.html", "policies.html"]) {
+  const route = page === "index.html" ? "/" : "/" + page;
+  app.get(route, (req, res, next) => {
+    const file = path.join(__dirname, page);
+    fs.existsSync(file) ? res.sendFile(file) : next();
+  });
+}
+
 /* ---------- API ---------- */
 app.get("/api/products", (_req, res) => res.json(PRODUCTS));
 
